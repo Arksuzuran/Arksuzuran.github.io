@@ -1,0 +1,582 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>BUAA2023春OS课程LAB2实验报告 | H1kari's Blog</title><meta name="author" content="H1kari"><meta name="copyright" content="H1kari"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Lab2实验报告一、ThinkingThinking1 请根据上述说明，回答问题：在编写的 C 程序中，指针变量中存储的地址 是虚拟地址，还是物理地址？  ​		如果程序运行在开启了MMU的操作系统中，那么用户态下指向虚拟地址，但在内核态下两者都有可能。 ​		在用户态下不必多说，我们在lab2中实现的两级页表以及tlb均是为虚拟内存管理服务的。而在内核态下，经过特殊授权的C代码中，指针可以直接指">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BUAA2023春OS课程LAB2实验报告">
+<meta property="og:url" content="http://example.com/2023/08/20/OSlab-report-2/index.html">
+<meta property="og:site_name" content="H1kari&#39;s Blog">
+<meta property="og:description" content="Lab2实验报告一、ThinkingThinking1 请根据上述说明，回答问题：在编写的 C 程序中，指针变量中存储的地址 是虚拟地址，还是物理地址？  ​		如果程序运行在开启了MMU的操作系统中，那么用户态下指向虚拟地址，但在内核态下两者都有可能。 ​		在用户态下不必多说，我们在lab2中实现的两级页表以及tlb均是为虚拟内存管理服务的。而在内核态下，经过特殊授权的C代码中，指针可以直接指">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/default_cover_2.png">
+<meta property="article:published_time" content="2023-08-19T16:45:27.367Z">
+<meta property="article:modified_time" content="2023-08-19T16:54:09.861Z">
+<meta property="article:author" content="H1kari">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/default_cover_2.png"><link rel="shortcut icon" href="/img/hfavicon.png"><link rel="canonical" href="http://example.com/2023/08/20/OSlab-report-2/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'BUAA2023春OS课程LAB2实验报告',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-08-20 00:54:09'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/default_cover_2.png')"><nav id="nav"><span id="blog-info"><a href="/" title="H1kari's Blog"><span class="site-name">H1kari's Blog</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">BUAA2023春OS课程LAB2实验报告</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-08-19T16:45:27.367Z" title="发表于 2023-08-20 00:45:27">2023-08-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-08-19T16:54:09.861Z" title="更新于 2023-08-20 00:54:09">2023-08-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="BUAA2023春OS课程LAB2实验报告"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Lab2实验报告"><a href="#Lab2实验报告" class="headerlink" title="Lab2实验报告"></a>Lab2实验报告</h1><h2 id="一、Thinking"><a href="#一、Thinking" class="headerlink" title="一、Thinking"></a>一、Thinking</h2><h3 id="Thinking1"><a href="#Thinking1" class="headerlink" title="Thinking1"></a>Thinking1</h3><blockquote>
+<p>请根据上述说明，回答问题：在编写的 C 程序中，指针变量中存储的地址 是虚拟地址，还是物理地址？</p>
+</blockquote>
+<p>​		如果程序运行在开启了MMU的操作系统中，那么<strong>用户态下指向虚拟地址，但在内核态下两者都有可能</strong>。</p>
+<p>​		在用户态下不必多说，我们在lab2中实现的两级页表以及tlb均是为虚拟内存管理服务的。而在内核态下，经过特殊授权的C代码中，指针可以直接指向并操纵物理地址。</p>
+<p>​		但lab2的练习中所涉及的函数，都没有直接使用指向物理内存的指针。这应该是因为kseg0段的性质：读写kseg0段的虚拟地址$addr$，实际上是在读写物理地址$addr&amp; 0x7fffffff$</p>
+<blockquote>
+<p>MIPS 汇编程序中 lw 和 sw 使用的是虚拟地址，还是物理地址？</p>
+</blockquote>
+<p>​		<strong>虚拟地址</strong>。</p>
+<hr>
+<h3 id="Thinking2"><a href="#Thinking2" class="headerlink" title="Thinking2"></a>Thinking2</h3><blockquote>
+<p>从可重用性的角度，阐述用宏来实现链表的好处。</p>
+</blockquote>
+<p>​		<strong>实验代码通过宏实现了泛型，即将要操作的数据类型指定为一个参数，封装了链表的所有操作</strong>（数据类型的声明与定义、链表初始化、插入、遍历等）<strong>：尽管数据类型不同，但都可以通过将数据类型传入宏，来复用一样的操作逻辑。</strong>这极大地提高了代码的可重用性，可维护性。</p>
+<p>​		举例来说，现在我们需要定义两个不同数据类型的链表，使用宏的情况下我们可以如下操作：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//第一种链表的定义和声明</span></span><br><span class="line">LIST_HEAD(Page_list1, Page1);</span><br><span class="line"><span class="keyword">typedef</span> <span class="title function_">LIST_ENTRY</span><span class="params">(Page1)</span> Page_LIST_entry_t;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Page1</span> &#123;</span></span><br><span class="line">	Page_LIST_entry_t pp_link;</span><br><span class="line">	<span class="type">int</span> pp_data1;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Page_list1</span> <span class="title">page_free_list1</span>;</span></span><br><span class="line"><span class="comment">//第二种链表的定义和声明</span></span><br><span class="line">LIST_HEAD(Page_list2, Page2);</span><br><span class="line"><span class="keyword">typedef</span> <span class="title function_">LIST_ENTRY</span><span class="params">(Page2)</span> Page_LIST_entry_t;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Page2</span> &#123;</span></span><br><span class="line">	Page_LIST_entry_t pp_link;</span><br><span class="line">	<span class="type">char</span> pp_data2;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Page_list2</span> <span class="title">page_free_list2</span>;</span></span><br><span class="line"><span class="comment">//判断链表是否为空。倘若不使用泛型，这里判断为空的函数必须得重新写，因为page_free_list的类型不同。</span></span><br><span class="line"><span class="keyword">if</span>(LIST_EMPTY(page_free_list1))&#123;<span class="comment">//things to do&#125;</span></span><br><span class="line"><span class="keyword">if</span>(LIST_EMPTY(page_free_list2))&#123;<span class="comment">//things to do&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>​		但如果不使用题目中的宏，则需要对于不同数据类型进行分别定义和处理，即每一种链表都要cv一遍、然后修改链表操作函数。倘若在迭代的过程中，需要对链表的某个操作进行更改，那就需要对所有链表类型都进行修改，维护成本大大提高。</p>
+<blockquote>
+<p>查看实验环境中的 &#x2F;usr&#x2F;include&#x2F;sys&#x2F;queue.h，了解其中单向链表与循环链表的实现，比较它们与本实验中使用的双向链表，分析三者在插入与删除操作上的性能差异。</p>
+</blockquote>
+<p>​		结构上的差异大致总结如下：</p>
+<table>
+<thead>
+<tr>
+<th>链表类型</th>
+<th>头尾指针</th>
+<th>链表项的指针域</th>
+<th>遍历方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LIST</td>
+<td>头指针</td>
+<td>[链表项的类型] *next, [链表项的类型] **prev</td>
+<td>只能前向</td>
+</tr>
+<tr>
+<td>SLIST</td>
+<td>头指针</td>
+<td>[链表项的类型]  *next</td>
+<td>只能前向</td>
+</tr>
+<tr>
+<td>CIRCLEQ</td>
+<td>头尾指针</td>
+<td>[链表项的类型]  *next, *prev</td>
+<td>前向或后向</td>
+</tr>
+</tbody></table>
+<p>​		插入的性能差异大致总结如下：</p>
+<table>
+<thead>
+<tr>
+<th>链表类型</th>
+<th>插入指定元素前面</th>
+<th>插入指定元素后面</th>
+<th>头插</th>
+<th>尾插</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LIST</td>
+<td>O(1)，最快</td>
+<td>O(1)，最慢</td>
+<td>O(1)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>SLIST</td>
+<td>O(n)</td>
+<td>O(1)，最快</td>
+<td>O(1)，最快</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>CIRCLEQ</td>
+<td>O(1)，但需要一次额外if判断</td>
+<td>O(1)，最慢</td>
+<td>O(1)，最慢</td>
+<td>O(1)</td>
+</tr>
+</tbody></table>
+<p>​		删除的性能差异大致总结如下：</p>
+<table>
+<thead>
+<tr>
+<th>链表类型</th>
+<th>删除指定元素</th>
+<th>删除头部元素</th>
+<th>删除尾部元素</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LIST</td>
+<td>O(1)，最快</td>
+<td>O(1)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>SLIST</td>
+<td>O(n)</td>
+<td>O(1)，最快</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>CIRCLEQ</td>
+<td>O(1)，比LIST多一次额外if判断</td>
+<td>O(1)，最慢</td>
+<td>O(1)</td>
+</tr>
+</tbody></table>
+<p>​		在lab2中，链表操作主要用于空闲物理页的管理，主要的增删操作为头插、删除指定元素，使用LIST是最合适的。</p>
+<h3 id="Thinking3"><a href="#Thinking3" class="headerlink" title="Thinking3"></a>Thinking3</h3><blockquote>
+<p>请阅读 include&#x2F;queue.h 以及 include&#x2F;pmap.h, 将 Page_list 的结构梳 理清楚，选择正确的展开结构。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//选择C</span></span><br><span class="line"><span class="comment">//最外层结构可通过LIST_HEAD(Page_list, Page)推出</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Page_list</span>&#123;</span></span><br><span class="line">    <span class="comment">//由如下声明推出</span></span><br><span class="line">        <span class="comment">/*struct Page &#123;</span></span><br><span class="line"><span class="comment">            Page_LIST_entry_t pp_link;</span></span><br><span class="line"><span class="comment">            u_short pp_ref;</span></span><br><span class="line"><span class="comment">        &#125;;*/</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">         <span class="comment">//由如下声明和宏推出</span></span><br><span class="line">        	<span class="comment">//typedef LIST_ENTRY(Page) Page_LIST_entry_t;</span></span><br><span class="line">             <span class="comment">/*#define LIST_ENTRY(type)\</span></span><br><span class="line"><span class="comment">                    struct &#123;\</span></span><br><span class="line"><span class="comment">                        struct type *le_next;\</span></span><br><span class="line"><span class="comment">                        struct type **le_prev;\</span></span><br><span class="line"><span class="comment">                    &#125;*/</span></span><br><span class="line">		<span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">			<span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">le_next</span>;</span></span><br><span class="line">			<span class="class"><span class="keyword">struct</span> <span class="title">Page</span> **<span class="title">le_prev</span>;</span></span><br><span class="line">		&#125; pp_link;</span><br><span class="line">		u_short pp_ref;</span><br><span class="line">	&#125;* lh_fitst;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Thinking4"><a href="#Thinking4" class="headerlink" title="Thinking4"></a>Thinking4</h3><blockquote>
+<p>请阅读上面有关 R3000-TLB 的描述，从虚拟内存的实现角度，阐述 ASID 的必要性。</p>
+</blockquote>
+<p>​		<strong>ASID的作用是区分不同的地址空间，实现对进程的地址保护</strong>。只有当前虚拟地址的VPN和当前进程ASID组都匹配时，才能找到物理地址，否则就会产生TLB Miss异常。</p>
+<p>​		<strong>每个进程都有自己的虚拟地址空间，故而可能使用到同一虚拟地址。进程之间会不断切换，TLB会保存进程的一部分页表。而ASID可以标识唯一标识一个进程，从而使得同一虚拟地址可以在不同地址空间下映射到自己正确的物理地址。</strong>在切换进程时，清空TLB应该也可以实现地址保护，但这样的开销想想就应当很大，而且浪费了原先填入TLB中的数据。</p>
+<blockquote>
+<p>请阅读《IDT R30xx Family Software Reference Manual》的 Chapter 6，结合 ASID 段的位数，说明 R3000 中可容纳不同的地址空间的最大数量。</p>
+</blockquote>
+<p>​		最多可容纳<strong>64</strong>个不同地址空间。</p>
+<p>​		首先ASID一共有6位，最多可以标识出$2^6&#x3D;64$个地址空间，可以猜测答案为64。</p>
+<p>​		之后翻阅手册得知答案为64，原文如下：</p>
+<blockquote>
+<p>By setting up TLB entries with a particular ASID setting and with the EntryLo G bit zero, those entries will only ever match a program address when the CPU’s ASID register is set the same. This allows software to map up to 64 different address spaces simultaneously, without requiring that the OS clear out the TLB on a context change.</p>
+</blockquote>
+<p>​		需要注意的是，低32位的Data中，Global位为1时无需匹配ASID，但这个机制不应该被认为是形成了一个独立的地址空间。</p>
+<hr>
+<h3 id="Thinking5"><a href="#Thinking5" class="headerlink" title="Thinking5"></a>Thinking5</h3><blockquote>
+<p>请回答下述三个问题： </p>
+<p>（1）tlb_invalidate 和 tlb_out 的调用关系？</p>
+</blockquote>
+<p>​		tlb_invalidate调用tlb_out。</p>
+<blockquote>
+<p>（2）请用一句话概括 tlb_invalidate 的作用。</p>
+</blockquote>
+<p>​		<strong>封装</strong>TLB旧表项无效化这一操作：即计算对应TLB表项的Key值，并以此key值为参数调用tlb_out。</p>
+<blockquote>
+<p>（3）逐行解释 tlb_out 中的汇编代码。</p>
+</blockquote>
+<p>​		<span id="tlb_out_detail_jump">代码分析已经在思考题中给出代码第一行为<code>LEAF(tlb_out)</code>，即用宏LEAD来定义函数<code>tlb_out</code>。以下先单独逐行分析<code>LEAF</code>（内容总结自指导书附录A）。</span></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#define LEAF(symbol)                                                                               \</span><br><span class="line">	.globl symbol;/*表明tlb_out是一个全局符号，可以在其他文件中引用，最终被链接器链接*/                                                                           \</span><br><span class="line">	.align 2;/*地址按4字节对齐，从而可以使用jal跳转*/                                                               \</span><br><span class="line">	.type symbol, @function;/*设置tlb_out是函数标签*/                                                              \</span><br><span class="line">	.ent symbol;/*标记函数的开头，与.end 配对使用，使得可以在 Debug 时查看调用链*/                                                                 \</span><br><span class="line">	symbol:/*symbol 标签*/			                                                                                    \</span><br><span class="line">	.frame sp, 0, ra/*用于访问栈帧的寄存器是sp，栈帧大小为0（这意味着没有局部变量），存储返回地址的寄存器是ra*/</span><br></pre></td></tr></table></figure>
+
+<p>​		以下是其余内容的逐行分析：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">/*利用封装了汇编指令的宏来快速设置符号，上面已经分析过了这个宏的含义*/</span><br><span class="line">LEAF(tlb_out)</span><br><span class="line">/*告诉汇编器无需对该段代码进行排序优化，因为我们已经手动加入了nop*/</span><br><span class="line">.set noreorder</span><br><span class="line">/*将ENTRYHI寄存器的值保存入t0寄存器，用于后面恢复*/</span><br><span class="line">	mfc0    t0, CP0_ENTRYHI</span><br><span class="line">/*将EntryHi寄存器设置为传入的参数值，即Key*/</span><br><span class="line">	mtc0    a0, CP0_ENTRYHI</span><br><span class="line">/*nop，解决数据冒险*/</span><br><span class="line">	nop</span><br><span class="line">/*根据EntryHi中的Key来查找TLB中对应的表项，若找到则把表项索引存入Index，否则Index高位置1（为负）*/</span><br><span class="line">	tlbp</span><br><span class="line">/*nop，解决数据冒险*/</span><br><span class="line">	nop</span><br><span class="line">/*把Index的值取出到t1寄存器*/</span><br><span class="line">	mfc0    t1, CP0_INDEX</span><br><span class="line">/*开启汇编器排序优化*/</span><br><span class="line">.set reorder</span><br><span class="line">/*若没找到表项，那么跳转到NO_SUCH_ENTRY*/</span><br><span class="line">	bltz    t1, NO_SUCH_ENTRY</span><br><span class="line">/*关闭汇编器排序优化*/</span><br><span class="line">.set noreorder</span><br><span class="line">/*找到了表项，那么就把EntryHi置0*/</span><br><span class="line">	mtc0    zero, CP0_ENTRYHI</span><br><span class="line">/*找到了表项，那么就把EntryLo置0*/</span><br><span class="line">	mtc0    zero, CP0_ENTRYLO0</span><br><span class="line">/*nop，解决数据冒险*/</span><br><span class="line">	nop</span><br><span class="line">/*以 Index 寄存器中的值为索引，将此时 EntryHi 与 EntryLo 的值（均为0）写到索引指定的 TLB 表项中，使之无效化*/</span><br><span class="line">	tlbwi</span><br><span class="line">/*开启汇编器排序优化*/</span><br><span class="line">.set reorder</span><br><span class="line">/*标签。刚才如果没找到表项那么就会略过上面的部分，直接跳转下来*/</span><br><span class="line">NO_SUCH_ENTRY:</span><br><span class="line">/*恢复EntryHi的值*/</span><br><span class="line">	mtc0    t0, CP0_ENTRYHI</span><br><span class="line">/*跳转回返回地址*/</span><br><span class="line">	j       ra</span><br><span class="line">/*使用宏定义函数的结尾*/</span><br><span class="line">END(tlb_out)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Thinking-6"><a href="#Thinking-6" class="headerlink" title="Thinking 6"></a>Thinking 6</h3><blockquote>
+<p>简单了解并叙述 X86 体系结构中的内存管理机制，比较 X86 和 MIPS 在内存管理上的区别。</p>
+</blockquote>
+<pre><code>     x86架构的地址有三种：物理地址，线性地址，逻辑地址。
+ 
+     x86架构的内存管理机制分为两部分：**分段机制**和**分页机制**。
+</code></pre>
+<p>​		<strong>分段机制</strong>是x86下最基本内存管理机制，能够<strong>将逻辑地址转换为线性地址</strong>，为程序提供彼此隔离的代码区域、数据区域、栈区域，从而避免了同一个处理器上运行的多个程序互相影响。分段机制的一次工作流程如下：</p>
+<p>​		当程序使用逻辑地址访问内存的某个部分时，CPU：</p>
+<ul>
+<li><p>首先确定要访问的段，<strong>通过该段对应的段寄存器获得段选择符</strong>。</p>
+</li>
+<li><p><strong>根据段选择符号的TI字段决定是访问GDT还是LDT</strong>。</p>
+</li>
+<li><p>将段选择符的Index字段的值*8（因为段描述符长8字节），然后加上GDT（全局段描述符表）或LDT（地段描述符表）的首地址，就能<strong>得到当前段描述符的地址</strong>。</p>
+</li>
+<li><p><strong>通过内存对应的段描述符，可以得知段的基地址、长度以及读&#x2F;写、访问权限等属性信息</strong>。</p>
+</li>
+<li><p>根据段描述符中的段属性信息检测程序的访问是否合法，如果合法，再<strong>根据段描述符中的基地址将逻辑地址转换为线性地址</strong>。</p>
+</li>
+</ul>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230320174650392.png" alt="image-20230320174650392"></p>
+<blockquote>
+<p>分段机制流程示意图，来源：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/400744554">NFV关键技术：x86架构基础（上篇） - 知乎 (zhihu.com)</a></p>
+</blockquote>
+<p>​		<strong>分页机制</strong>在x86架构下为可选项，能够实现线性地址到物理地址的映射。</p>
+<p>​		分页机制的核心思想是通过页表将线性地址转换为物理地址，并配合TLB来加速地址转换的过程。分页机制主要由<strong>页表</strong>、<strong>CR3寄存器</strong>和<strong>TLB</strong>三个部件构成。</p>
+<p>​		当关闭分页机制时，访存流程为：<strong>逻辑地址—&gt;线性地址&#x3D;物理地址</strong>；当开启分页机制时，访存流程为：<strong>逻辑地址—&gt;线性地址—&gt;物理地址</strong></p>
+<p>​		x86的传统32位保护模式下，分页机制的实现和我们的mos系统非常相似，都使用了两级页表的转换方案，页目录表和页表均为1024项，每项32位。CR3寄存器类似于mos中的cur_dir变量，用来指向当前进程的页目录表。</p>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230320180526836.png" alt="image-20230320180526836"></p>
+<blockquote>
+<p>分页机制流程示意图，来源：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/400744554">NFV关键技术：x86架构基础（上篇） - 知乎 (zhihu.com)</a></p>
+</blockquote>
+<hr>
+<h3 id="Thinking-A-1"><a href="#Thinking-A-1" class="headerlink" title="Thinking A.1"></a>Thinking A.1</h3><blockquote>
+<p>在现代的 64 位系统中，提供了 64 位的字长，但实际上不是 64 位页式存 储系统。假设在 64 位系统中采用三级页表机制，页面大小 4KB。由于 64 位系统中字长为 8B，且页目录也占用一页，因此页目录中有 512 个页目录项，因此每级页表都需要 9 位。 因此在 64 位系统下，总共需要 3 × 9 + 12 &#x3D; 39 位就可以实现三级页表机制，并不需要 64 位。 现考虑上述 39 位的三级页式存储系统，虚拟地址空间为 512 GB，若三级页表的基地 址为 PTbase，请计算： </p>
+<p>• 三级页表页目录的基地址。	</p>
+</blockquote>
+<p>​		在三级页表中，三级分别是页全局目录（PGB）、页中间目录（PMD）、页表（PT）。</p>
+<p>​		<strong>我们计算的依据如下：第n级页表可以被看作第n-1级页表的表项，而第n-1级页表的页目录是其内部的某个n级页表；某级页表的页目录在该级页表内的相对位置，总是等于总页表在虚拟空间内的相对位置。</strong>（该结论仅用于递归计算。证明：设页表系统共有m级，第n级页表的页目录在第n级目录内的相对位置是$x_n$($0&lt;&#x3D;n&lt;m$)，其中$x_0$是总页表在虚拟空间内的相对位置。根据页表的线性映射性质有$x_0&#x3D;x_1$，$x_1&#x3D;x_2$，……，$x_{m-2}&#x3D;x_{m-1}$，即可证明结论）。</p>
+<p>​		我们要计算的三级页表页目录，是一个页表（PT）。</p>
+<p>​		39位地址可以构成的虚拟地址空间大小是$2^{39}&#x3D;512GB$.  每个PMD可以映射的虚拟地址空间大小是$2MB\times512&#x3D;1GB$.每个PT可以映射的虚拟地址空间大小是$4KB \div 8B \times 2^{12} &#x3D; 2MB$。</p>
+<p>​		一个PT的物理大小为$4KB$，一个PMD的物理大小是$4KB\times512&#x3D;2MB$. 一个PGB的物理大小是$2MB\times512 &#x3D; 1GB$，恰好是一个PMD所能够映射的大小。</p>
+<p>​		页表的基地址是$PT_{base}$，而每个PMD可以映射的地址空间是$2^{30}B$。故PGB所在的物理地址，映射到第$PT_{base}&gt;&gt;30$ 个PMD（记为PMD$x$）。通过我们的计算依据得知，<strong>所有页目录总是上一级页表的第$PT_{base}&gt;&gt;30$个页表项</strong>。</p>
+<p>​		于是三级页表页目录位于第$PT_{base}&gt;&gt;30$个PMD中的第$PT_{base}&gt;&gt;30$个PT。</p>
+<p>​		故三级页表页目录的基地址（即一级页表地址）为$页表基地址+二级页表在总页表中的偏移量+一级页表在二级页表中的偏移量$，即$PT_{base}&gt;&gt;30+(PT_{base}&gt;&gt;30)\times2MB+(PT_{base}&gt;&gt;30)\times4KB$</p>
+<p>​		故答案是$PT_{base} + PT_{base}&gt;&gt;9+PT_{base}&gt;&gt;18$.</p>
+<blockquote>
+<p> • 映射到页目录自身的页目录项（自映射）。</p>
+</blockquote>
+<p>​		三级页表页目录位于PBG中的第$PT_{base}&gt;&gt;30$个PMB，因此映射到页目录自身的页目录项是第$PT_{base}&gt;&gt;30$项，该项在页目录中的偏移量为$(PT_{base}&gt;&gt;30)\times8B&#x3D;(PT_{base}&gt;&gt;27)B$。</p>
+<p>​		因此自映射的页表项地址是$PT_{base} + PT_{base}&gt;&gt;9+PT_{base}&gt;&gt;18+PT_{base}&gt;&gt;27 $.</p>
+<h2 id="二、难点总结"><a href="#二、难点总结" class="headerlink" title="二、难点总结"></a>二、难点总结</h2><p>​		本次实验中，我们所做的工作是基于指导书给定的访存流程和内存映射布局，实现内存管理。具体来说有以下三个模块：</p>
+<ul>
+<li>使用链表法进行物理内存的页式管理。</li>
+<li>使用两级页表进行虚拟内存的页式管理。</li>
+<li>TLB清除和充填。</li>
+</ul>
+<p>​		仅在lab2中，这三个模块的关系可以简单表示如下：</p>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230326111015745.png" alt="image-20230326111015745"></p>
+<p>​		接下来以原理分析+代码解读的方式对lab2的三个模块进行总结（虽然指导书上很多内容都有，但还是尝试自己总结一下）。</p>
+<h3 id="一、物理内存管理"><a href="#一、物理内存管理" class="headerlink" title="一、物理内存管理"></a>一、物理内存管理</h3><h3 id="1-内存布局"><a href="#1-内存布局" class="headerlink" title="1.内存布局"></a>1.内存布局</h3><p>​		要进行物理内存管理，首先应当了解我们的内存布局。因为我们用来管理内存的数据结构就存放在kseg0当中。</p>
+<p>​		在lab2的内核代码当中，<strong>无论是C语言还是mips汇编，无论是指针还是PC中的地址，都是虚拟地址</strong>。这是因为lab2是在已经初始化cache的基础上进行的，因此<strong>kseg0中的虚拟地址最终会被转换为物理地址，无需我们直接操作物理地址</strong>。</p>
+<p>​		内存布局中各部分的特点如下：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>位置</th>
+<th>依赖</th>
+<th>映射到物理地址的方式</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>kseg2</td>
+<td>0xC0000000-0xFFFFFFFF</td>
+<td>cache, TLB</td>
+<td>查询TLB</td>
+<td>内核态使用</td>
+</tr>
+<tr>
+<td>kseg1</td>
+<td>0xA0000000-0xBFFFFFFF</td>
+<td>\</td>
+<td>$addr-0xA0000000$</td>
+<td>映射外设</td>
+</tr>
+<tr>
+<td>kseg0</td>
+<td>0x80000000-0x9FFFFFFF</td>
+<td>cache</td>
+<td>$addr-0x80000000$</td>
+<td>存放内核代码,数据结构</td>
+</tr>
+<tr>
+<td>kuseg</td>
+<td>0-0x7FFFFFFF</td>
+<td>cache, TLB</td>
+<td>查询TLB</td>
+<td>用户态使用</td>
+</tr>
+</tbody></table>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230326111729865.png" alt="image-20230326111729865"></p>
+<blockquote>
+<p>图片来自指导书</p>
+</blockquote>
+<h3 id="2-链表法原理"><a href="#2-链表法原理" class="headerlink" title="2.链表法原理"></a>2.链表法原理</h3><p>​		根据页式内存管理的原则，我们的<strong>整个物理地址空间被划分成了一个个<code>4KB</code>大小的物理页面</strong>。我们对物理内存的管理，根本上来说就是<strong>标识各个页面的使用情况</strong>（是否被使用，引用次数为多少），以便于建立起虚拟页和物理页的映射关系。</p>
+<p>​		<strong>对于每一个物理页面，都有一个<code>struct Page</code>类型的页控制块与之对应</strong>。我们先<strong>在kseg0中申请一片空间来连续地放置页控制块，等同于一个数组。这样的好处是能够直接随机访问指定物理地址的页控制块。</strong></p>
+<p>​		对于每一个页控制块，<code>struct Page</code>类型内：</p>
+<ul>
+<li><p>存储有链表结构体<code>pp_link</code>，从而可以<strong>使用链表的形式将数组中的一部分元素以非线性顺序串联起来，用来标识是否已被使用，成为空闲物理页链表。</strong>这样的好处是可以在O（1）内实现指定结点的删除、头插。</p>
+<ul>
+<li>对应链表操作：<strong>当一个进程需要分配内存时，将空闲链表头部的页控制块对应的那一页物理内存分配出去，同时在链表中删除该结点。</strong></li>
+</ul>
+</li>
+<li><p>存储有该页被引用的次数<code>pp_ref</code>，用于维护空闲链表。当<code>pp_ref</code>为0时进入空闲链表，否则从链表中移除。</p>
+<ul>
+<li>对应链表操作：<strong>当一页物理内存被使用完毕 (引用次数为 0 )，将其对应的页控制块重新插入 到空闲链表的头部。</strong></li>
+</ul>
+</li>
+</ul>
+<p>​		可以画出示意图如下：<em>（注意：该图并不一定是实际运行时的某个快照，因为实际物理内存在<code>PADDR(freemem)</code>以下的至少4MB的部分，实际上存放了内核代码、物理页控制块等关键内容，这部分不大可能处于空闲状态）</em></p>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230326192308974.png" alt="image-20230326192308974"></p>
+<blockquote>
+<p>指导书上或许应该给一个这样的示意图？只看文字还是容易迷</p>
+</blockquote>
+<h3 id="3-读代码"><a href="#3-读代码" class="headerlink" title="3.读代码"></a>3.读代码</h3><h4 id="辅助函数"><a href="#辅助函数" class="headerlink" title="辅助函数"></a>辅助函数</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//pmap.h</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//给定页控制块指针，转换为页控制块编号（从0开始）</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> u_long <span class="title function_">page2ppn</span><span class="params">(<span class="keyword">struct</span> Page *pp)</span> &#123;</span><br><span class="line">    <span class="comment">//sizeof(struct Page)=12，指针的加减法就是以12为单位进行的。</span></span><br><span class="line">    <span class="comment">//例如说pp为144，pages为0，那么pp - pages得到12，即pp是第13个页控制块。</span></span><br><span class="line">	<span class="keyword">return</span> pp - pages;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//给定页控制块指针，转换为物理地址</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> u_long <span class="title function_">page2pa</span><span class="params">(<span class="keyword">struct</span> Page *pp)</span> &#123;</span><br><span class="line">    <span class="comment">//每个物理页是4KB大小，页编号左移12位即为该页起始的物理地址</span></span><br><span class="line">	<span class="keyword">return</span> page2ppn(pp) &lt;&lt; PGSHIFT;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//给定物理地址，转换为页控制块指针</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="keyword">struct</span> Page *<span class="title function_">pa2page</span><span class="params">(u_long pa)</span> &#123;</span><br><span class="line">    <span class="comment">//物理地址应当合法，即不能超出我们的物理内存上限</span></span><br><span class="line">    <span class="comment">//PPN宏的作用是求出物理地址对应的页控制块编号</span></span><br><span class="line">	<span class="keyword">if</span> (PPN(pa) &gt;= npage) &#123;</span><br><span class="line">        <span class="comment">//panic函数用于报错，可以用来debug</span></span><br><span class="line">		panic(<span class="string">&quot;pa2page called with invalid pa: %x %d %d&quot;</span>, pa,PPN(pa),npage);</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="comment">//这里可以看出我们将页控制块分配到连续空间的好处，可以直接使用数组的形式方便访问</span></span><br><span class="line">	<span class="keyword">return</span> &amp;pages[PPN(pa)];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="void-mips-detect-memory"><a href="#void-mips-detect-memory" class="headerlink" title="void mips_detect_memory()"></a><code>void mips_detect_memory()</code></h4><p>​		该函数的作用是从指定地址处读出物理内存大小，再根据物理内存大小计算出分页的数量。在lab2中，这是被调用的首个函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">mips_detect_memory</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">//注意到KSEG1宏，说明这里访问了硬件</span></span><br><span class="line">	memsize = *(<span class="keyword">volatile</span> u_int *)(KSEG1 | DEV_MP_ADDRESS | DEV_MP_MEMORY);</span><br><span class="line">    <span class="comment">//BY2PG宏的值是4096，这就是我们一个物理页面的大小。</span></span><br><span class="line">	npage = memsize / BY2PG;</span><br><span class="line">	printk(<span class="string">&quot;Memory size: %lu KiB, number of pages: %lu\n&quot;</span>, memsize / <span class="number">1024</span>, npage);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="void-alloc-u-int-n-u-int-align-int-clear"><a href="#void-alloc-u-int-n-u-int-align-int-clear" class="headerlink" title="void *alloc(u_int n, u_int align, int clear)"></a><code>void *alloc(u_int n, u_int align, int clear)</code></h4><p>​		该函数的作用是<strong>在建立起页式管理机制之前，分配内存空间</strong>。具体来说：</p>
+<ul>
+<li><p>先将全局变量<code>freemem</code>按<code>align</code>对齐，之后再分配出<code>n</code>字节的空间（freemem +&#x3D; n）。</p>
+</li>
+<li><p>如果clear非0那么将分配出的这块内存置0。</p>
+</li>
+<li><p>返回被分配出的空间的首地址。</p>
+<p>需要积累如下宏（此处略去\）：</p>
+<ul>
+<li><strong>PADDR(kva)：将<big>kseg0</big>里的虚拟地址转换为物理地址</strong>。转换规则已总结过。</li>
+<li><strong>VADDR(pa)：将<big>kseg0</big>里的物理地址转换为虚拟地址</strong>。</li>
+<li>ROUND(a, n)：将a按照n（注意，不是按$2^n$）向上对齐。</li>
+<li>ROUNDDOWN(a, n)：将a按照n向下对齐。</li>
+<li>panic(…)：直接产生报错信息，可以在此<strong>输出我们关心的变量以便调试用</strong>。</li>
+</ul>
+</li>
+</ul>
+<p>​		在alloc函数中，<code>extern char end[]</code>实际上是我们在lab1链接脚本中定义的。**end作为一个符号，其被链接到的地址是<code>0x80400000</code>**。此处end写成数组名的原因应该是由于&amp;end&#x3D;&#x3D;&amp;end[0]，这样后面取end的值就是<code>0x80400000</code>；否则如果写成指针形式<code>extern char *end</code>，那么end的值是地址<code>0x80400000</code>处的值，无法预料。</p>
+<h4 id="void-mips-vm-init"><a href="#void-mips-vm-init" class="headerlink" title="void mips_vm_init()"></a><code>void mips_vm_init()</code></h4><p>​		该函数的作用是**分配物理页控制块数组<code>pages</code>**。由于此时尚未建立物理内存管理机制，因此需要调用alloc函数。</p>
+<h4 id="void-page-init"><a href="#void-page-init" class="headerlink" title="void page_init()"></a><code>void page_init()</code></h4><p>​		该函数在<code>mips_vm_init</code>后被调用。<strong>我们已经为页控制块数组分配好了内存，该函数的作用是，在此基础上初始化空闲链表。</strong>此后，物理内存管理即被初始化完成，不必再调用<code>alloc</code>或修改<code>freemem</code>。</p>
+<p>​		在调用该函数时，我们的内存里还很干净，没有各种各样的进程来索要内存空间，因此我们只需要处理好ROUND(freemem, BY2PG)以下的空间即可。具体来说：</p>
+<ul>
+<li><p>先对齐<code>freemem</code>。<strong>对齐的目的是便于页式内存管理</strong>，否则一页里同时有内核和其他进程的相关内容可太蠢了。</p>
+</li>
+<li><p><code>freemem</code>以下的空间为已用，将<code>pp_ref</code>标为1。<code>freemem</code>以上的空间为空闲，依序头插入链表并将<code>pp-ref</code>标为0。</p>
+</li>
+</ul>
+<h4 id="int-page-alloc-struct-Page-new"><a href="#int-page-alloc-struct-Page-new" class="headerlink" title="int page_alloc(struct Page **new) "></a><code>int page_alloc(struct Page **new) </code></h4><p>​		在物理内存管理初始化完成后，**<big>该函数是MOS中申请物理存储空间的方式,作用是分配一个被清空的物理页(大小4KB)，并将指向<em>该页控制块</em>的指针存入<code>new</code></big>**。具体来说：</p>
+<ul>
+<li>如果空闲链表为空，则返回<code>-E_NO_MEM</code>。否则取出并移除链表的第一个页控制块元素。</li>
+<li>将指向该页控制块的指针存入<code>new</code>，求出该页控制块对应的虚拟地址，并调用<code>memset</code>清空之。</li>
+</ul>
+<p>​		申请物理内存，实际上就是修改并获得对应的物理内存控制块。代码贴在下面。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">page_alloc</span><span class="params">(<span class="keyword">struct</span> Page **new)</span> &#123;</span><br><span class="line">	<span class="comment">/* Step 1: Get a page from free memory. If fails, return the error code.*/</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">pp</span>;</span></span><br><span class="line">	<span class="keyword">if</span>(LIST_EMPTY(&amp;page_free_list))&#123;</span><br><span class="line">		<span class="keyword">return</span> -E_NO_MEM;</span><br><span class="line">	&#125;</span><br><span class="line">	pp = LIST_FIRST(&amp;page_free_list);</span><br><span class="line">	LIST_REMOVE(pp, pp_link);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Step 2: Initialize this page with zero.</span></span><br><span class="line"><span class="comment">	 * Hint: use `memset`. */</span></span><br><span class="line">	u_long addr = page2kva(pp);</span><br><span class="line">	<span class="built_in">memset</span>((<span class="type">void</span> *)addr, <span class="number">0</span>, BY2PG);</span><br><span class="line"></span><br><span class="line">	*new = pp;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​		</p>
+<h4 id="void-page-decref-struct-Page-pp"><a href="#void-page-decref-struct-Page-pp" class="headerlink" title="void page_decref(struct Page *pp)"></a><code>void page_decref(struct Page *pp)</code></h4><p>​		该函数的作用是<strong>使<code>pp</code>指向的页控制块的引用次数-1。如果引用次数跌为0，那么释放该页</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">page_decref</span><span class="params">(<span class="keyword">struct</span> Page *pp)</span> &#123;</span><br><span class="line">	assert(pp-&gt;pp_ref &gt; <span class="number">0</span>);<span class="comment">//用于调试的报错函数，如果`pp-&gt;pp_ref &gt; 0`为0那么就会输出错误。</span></span><br><span class="line">	<span class="comment">/* If &#x27;pp_ref&#x27; reaches to 0, free this page. */</span></span><br><span class="line">	<span class="keyword">if</span> (--pp-&gt;pp_ref == <span class="number">0</span>) &#123;</span><br><span class="line">		page_free(pp);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="void-page-free-struct-Page-pp"><a href="#void-page-free-struct-Page-pp" class="headerlink" title="void page_free(struct Page *pp)"></a><code>void page_free(struct Page *pp)</code></h4><p>​		该函数的作用是将<strong>使<code>pp</code>指向的页控制块标记为空闲，即直接加入空闲链表</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">page_free</span><span class="params">(<span class="keyword">struct</span> Page *pp)</span> &#123;</span><br><span class="line">	assert(pp-&gt;pp_ref == <span class="number">0</span>);</span><br><span class="line">	<span class="comment">/* Just insert it into &#x27;page_free_list&#x27;. */</span></span><br><span class="line">	LIST_INSERT_HEAD(&amp;page_free_list, pp, pp_link);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="链表宏"><a href="#链表宏" class="headerlink" title="链表宏"></a>链表宏</h4><p>​		链表的相关特点已经在思考题中总结过。</p>
+<p>​		目前<code>list</code>类型的链表宏支持如下操作：自定义节点结构体、初始化链表、取头元素、遍历、在指定元素后插入、在指定元素前插入、头插、返回指定元素的下一个元素、移除指定元素。以上操作除遍历外均为O(1)复杂度。</p>
+<p>​		如下代码可以声明并初始化一个自定义的链表：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">LIST_HEAD(Page_list, Page);<span class="comment">//声明头结点的类型</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="title function_">LIST_ENTRY</span><span class="params">(Page)</span> Page_LIST_entry_t;<span class="comment">//声明链表结构体的类型</span></span><br><span class="line"><span class="comment">//声明链表节点的类型</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Page</span> &#123;</span></span><br><span class="line">    <span class="comment">//链表结构体</span></span><br><span class="line">	Page_LIST_entry_t pp_link; <span class="comment">/* free list link */</span></span><br><span class="line">	<span class="comment">//我们需要的自定义属性</span></span><br><span class="line">	u_short pp_ref;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//声明头结点变量</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Page_list</span> <span class="title">page_free_list</span>;</span></span><br><span class="line"><span class="comment">//需要在某个代码块内调用如下函数！</span></span><br><span class="line">LIST_INIT(&amp;page_free_list);</span><br></pre></td></tr></table></figure>
+
+<p>​		下面是LIST_INSERT_AFTER(listelm, elm, field)的流程示意图：</p>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230326190124575.png" alt="image-20230326190124575"></p>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230326190518837.png" alt="image-20230326190518837"></p>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230326190913495.png" alt="image-20230326190913495"></p>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230326191042834.png" alt="image-20230326191042834"></p>
+<p>​		**在使用链表宏时需要格外注意，我们传入的<code>listelm</code>，<code>elm</code>，<code>head</code>都应当是指向它们的 <big>指针</big>**，例如我们在<code>page_init</code>里这样调用头插方法：<code>LIST_INSERT_HEAD(&amp;page_free_list, pa2page(pa), pp_link);</code>，其中<code>pa2page(pa)</code>返回的亦是指向<code>struct page</code>类型的指针。</p>
+<hr>
+<h3 id="二、虚拟内存管理"><a href="#二、虚拟内存管理" class="headerlink" title="二、虚拟内存管理"></a>二、虚拟内存管理</h3><h3 id="1-五种地址之间的转换"><a href="#1-五种地址之间的转换" class="headerlink" title="1.五种地址之间的转换"></a>1.五种地址之间的转换</h3><p>​		实验代码中涉及到了以下五种地址：物理地址，线性地址，物理页控制块地址，一级页表基地址，二级页表基地址。<strong>后三者其实在代码中都以指向线性地址的指针表示</strong>。根据所处的虚拟地址不同，以上五种地址之间可以通过函数进行转换。</p>
+<p>​		本次实验中各种地址之间经常转换，下面总结了kseg0和kuseg中地址转换的可用函数：</p>
+<p>​		<img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230327145843068.png" alt="image-20230327145843068"></p>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230327151558362.png" alt="image-20230327151558362"></p>
+<h3 id="2-页式内存管理原理"><a href="#2-页式内存管理原理" class="headerlink" title="2.页式内存管理原理"></a>2.页式内存管理原理</h3><p>​		页式内存管理的核心思想是：<strong>将虚拟地址空间和物理地址空间都划分为相同大小的页，并以页为单位，对每个进程都建立一种独立的映射</strong>。</p>
+<p>​		二级页式内存管理的好处有很多：</p>
+<ul>
+<li>地址保护。不同进程都认为自己独享整个地址空间，互不干扰。</li>
+<li>减少碎片，提高空间利用率。页表的分配单元是页，这使得在虚拟内存中连续的一大块数据，实际上可以离散地分布在物理内存中，每次浪费的空间（即内碎片）不会超过页的大小。没有外碎片。</li>
+<li>虚存量大，适合多道程序运行。用户不必担心内存不足时的调度问题。</li>
+<li>统一抽象，方便”用户”(即程序员)。页式内存管理屏蔽了cache、主存、硬盘之间的差异，用户编程时无需再考虑物理内存的分配，大大简化了编程。</li>
+<li>页表调入灵活。相比不分级的页表管理来说，二级页表管理可以只将需要的页调入内存，无需预先分配所有页表项。</li>
+</ul>
+<p>​		页式内存管理中，<strong>一级页表和二级页表的构造相同，实质上都是长度为1024的<code>u_long</code>类型的数组（故此每个页表均占用4KB空间，恰好为一个物理页大小）。一级页表表项存储二级页表所在的物理页号和标志位，二级页表表项存储目标物理地址的物理页号和标志位。</strong></p>
+<p>​		页表中项的位结构如下（同TLB中的Data）：</p>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230327173536356.png" alt="image-20230327173536356"></p>
+<blockquote>
+<p>来自指导书</p>
+</blockquote>
+<p>​		一次具体的访存流程如下，当前进程的一级页表基地址已知，目标虚拟地址已知：</p>
+<p><img src="C:\Users\24712\AppData\Roaming\Typora\typora-user-images\image-20230327164933510.png" alt="image-20230327164933510"></p>
+<blockquote>
+<p>来自指导书</p>
+</blockquote>
+<pre><code>    1. 查询一级页表，找到二级页表对应的一级页表项。**取出虚拟地址的前十位(`PDX(va)`)，这是目标二级页表对应的一级页表项，在一级页表中的偏移量**，`pgdir+PDX(va)`即是指向该一级页表项的指针。
+    1. 找到二级页表基地址。在一级页表项的32位中，**如果`PTE_V`为1，则表明该项的高20位是二级页表的物理页号，由于一物理页恰好是12位，因此直接将权限位清零即可得到二级页表基地址(PTE_ADDR(*pde))。**
+    1. 查询二级页表，找到目标虚拟地址对应的二级页表项。**取出虚拟地址的中间十位(`PTX(va)`)，这是目标虚拟地址对应的二级页表项，在二级页表中的偏移量**，`pte+PTX(va)`即是指向该二级页表项的指针。
+</code></pre>
+<ol start="4">
+<li>找到目标虚拟地址映射的物理地址。如果<code>PTE_V</code>为1，则表明该项的高20位是目标物理地址的物理页号。**取出虚拟地址的后十二位(<code>va&amp;0xFFF</code>)，与物理页号组合(PTE_ADDR(*pte) + va&amp;0xFFF)即得到目标物理地址**。</li>
+</ol>
+<p>​		这就是一次访问流程。中途如果发现<code>PTE_V</code>不为1，则查找失败，需要另行处理（例如随机分配一个物理页）。</p>
+<p>​		<strong>映射所作的实际工作其实就是，在指定的位置上，按指定方式存入要映射的物理地址。</strong></p>
+<h3 id="3-读代码-1"><a href="#3-读代码-1" class="headerlink" title="3.读代码"></a>3.读代码</h3><h4 id="static-int-pgdir-walk-Pde-pgdir-u-long-va-int-create-Pte-ppte"><a href="#static-int-pgdir-walk-Pde-pgdir-u-long-va-int-create-Pte-ppte" class="headerlink" title="static int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte)"></a><code>static int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte)</code></h4><p>​		该函数完成上述分析中，页表查询的前三步：**<big>查找页表pgdir中，va对应的二级页表项。如果二级页表不存在且create，则分配一个二级页表且继续查找。</big>**查询结果存储在二级指针<code>Pte** ppte</code>中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">pgdir_walk</span><span class="params">(Pde *pgdir, u_long va, <span class="type">int</span> create, Pte **ppte)</span> &#123;</span><br><span class="line">	Pde *pgdir_entryp;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">pp</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">//第一步，找到对应的一级页表项</span></span><br><span class="line">    <span class="comment">//宏PDX(va)会取出前10位且将这10位移到最低位</span></span><br><span class="line">    <span class="comment">//注意指针的运算性质：pgdir+pdx在数值上等于pgdir+pdx+sizeof(u_long)</span></span><br><span class="line">	u_long pdx = PDX(va);</span><br><span class="line">	pgdir_entryp = pgdir + pdx;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//第二步，处理二级页表无效的事件</span></span><br><span class="line">    <span class="comment">//PTE_V为0即无效</span></span><br><span class="line">	<span class="keyword">if</span>((*pgdir_entryp &amp; PTE_V) == <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="comment">//创建流程：</span></span><br><span class="line">		<span class="keyword">if</span>(create)&#123;</span><br><span class="line">            <span class="comment">//1.分配一个物理页，物理页的虚拟地址存入struct Page *pp</span></span><br><span class="line">			<span class="keyword">if</span>(page_alloc(&amp;pp) == <span class="number">0</span>)&#123;</span><br><span class="line">                <span class="comment">//2.维护物理页的pp_ref，++</span></span><br><span class="line">				pp-&gt;pp_ref++;				<span class="comment">//这里感觉++更好？lab2中&#x27;=1&#x27;也可以</span></span><br><span class="line">                <span class="comment">//3.完成映射：将该物理页的地址存入指定位置</span></span><br><span class="line">				*pgdir_entryp = page2pa(pp)|PTE_V|PTE_D;</span><br><span class="line">			&#125;</span><br><span class="line">            <span class="comment">//没有空间了，创建失败</span></span><br><span class="line">			<span class="keyword">else</span>&#123;</span><br><span class="line">				*ppte = <span class="literal">NULL</span>;</span><br><span class="line">				<span class="keyword">return</span> -E_NO_MEM;		</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">//不创建，直接返回空值</span></span><br><span class="line">		<span class="keyword">else</span>&#123;</span><br><span class="line">			*ppte = <span class="literal">NULL</span>;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//第三步，找到二级页表项</span></span><br><span class="line">    <span class="comment">//1.找到二级页表基地址</span></span><br><span class="line">	u_long pa_pgtable = PTE_ADDR(*pgdir_entryp);		<span class="comment">//pa of pageTable</span></span><br><span class="line">    <span class="comment">//2.找到二级页表项，注意指针的运算，由于宏返回的总是u_long类型，因此要么先转换为指针再+PTX(va)，要么+4*PTX(va)之后再转换为指针</span></span><br><span class="line">	Pte *pgtable_entryp = (Pte*)KADDR(pa_pgtable) + PTX(va);<span class="comment">//va of pageTableEntry</span></span><br><span class="line">    <span class="comment">//返回结果</span></span><br><span class="line">	*ppte = pgtable_entryp;					<span class="comment">//assign ppte</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="int-page-insert-Pde-pgdir-u-int-asid-struct-Page-pp-u-long-va-u-int-perm"><a href="#int-page-insert-Pde-pgdir-u-int-asid-struct-Page-pp-u-long-va-u-int-perm" class="headerlink" title="int page_insert(Pde *pgdir, u_int asid, struct Page *pp, u_long va, u_int perm)"></a><code>int page_insert(Pde *pgdir, u_int asid, struct Page *pp, u_long va, u_int perm)</code></h4><p>​		该函数的作用是**<big>新建立一个映射：在页表pgdir中建立关于asid对应进程的一个映射：<code>va-&gt;page2pa(pp)</code>，并置二级页表项权限位为perm。</big>**该函数调用了我们先前完成的<code>page_walk(Pde* pgdir, u_long va, int create, Pte **ppte)</code>，体现了封装的好处。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">page_insert</span><span class="params">(Pde *pgdir, u_int asid, <span class="keyword">struct</span> Page *pp, u_long va, u_int perm)</span> &#123;</span><br><span class="line">	Pte *pte;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//第一步，尝试寻找va对应的二级页表项，存入pte</span></span><br><span class="line">	pgdir_walk(pgdir, va, <span class="number">0</span>, &amp;pte);</span><br><span class="line">	</span><br><span class="line">    <span class="comment">//如果找到了该页表项且有效</span></span><br><span class="line">	<span class="keyword">if</span> (pte &amp;&amp; (*pte &amp; PTE_V)) &#123;</span><br><span class="line">        <span class="comment">//当前va在一个不同的映射中，那么废除该映射</span></span><br><span class="line">		<span class="keyword">if</span> (pa2page(*pte) != pp) &#123;</span><br><span class="line">			page_remove(pgdir, asid, va);</span><br><span class="line">		&#125; </span><br><span class="line">        <span class="comment">//当前va就映射到了指定的pp，那么更新权限位即可</span></span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">			tlb_invalidate(asid, va);</span><br><span class="line">			*pte = page2pa(pp) | perm | PTE_V;</span><br><span class="line">            <span class="comment">//tlb_invalidate(asid, va);放在最后是不是可能更好一些？</span></span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//我们的TLB中存储的关系是页表中存储关系的子集，当页表更新时，一定要通知TLB进行更新</span></span><br><span class="line">	tlb_invalidate(asid, va);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//要么映射被废除，要么该页表项本身无效，要么压根不存在此二级页表。</span></span><br><span class="line">    <span class="comment">//为了处理不存在二级页表的情况，此处create</span></span><br><span class="line">	<span class="keyword">if</span>(pgdir_walk(pgdir, va, <span class="number">1</span>, &amp;pte) != <span class="number">0</span>)&#123;</span><br><span class="line">		<span class="keyword">return</span> -E_NO_MEM;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//新建映射的方式其实就是根据物理地址更新页表项的内容</span></span><br><span class="line">	*pte = page2pa(pp) | perm | PTE_V;</span><br><span class="line">    <span class="comment">//别忘了更新页控制块里面的引用次数</span></span><br><span class="line">	pp-&gt;pp_ref++;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//tlb_invalidate(asid, va);放在最后是不是可能更好一些？</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="struct-Page-page-lookup-Pde-pgdir-u-long-va-Pte-ppte"><a href="#struct-Page-page-lookup-Pde-pgdir-u-long-va-Pte-ppte" class="headerlink" title="struct Page *page_lookup(Pde *pgdir, u_long va, Pte **ppte)"></a><code>struct Page *page_lookup(Pde *pgdir, u_long va, Pte **ppte)</code></h4><p>​		该函数的作用是**<big>进行一次完整的查询：在页表pgdir中查找va对应的物理页，返回该物理页的控制块以及该二级页表项。</big>**该函数也调用了我们先前完成的<code>page_walk(Pde* pgdir, u_long va, int create, Pte **ppte)</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> Page *<span class="title function_">page_lookup</span><span class="params">(Pde *pgdir, u_long va, Pte **ppte)</span> &#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">pp</span>;</span></span><br><span class="line">	Pte *pte;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//进行查询的前三步，找到二级页表项</span></span><br><span class="line">	pgdir_walk(pgdir, va, <span class="number">0</span>, &amp;pte);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//二级页表项未找到或者无效，那么查找失败，返回NULL</span></span><br><span class="line">	<span class="keyword">if</span> (pte == <span class="literal">NULL</span> || (*pte &amp; PTE_V) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">//加上*ppte = NULL;是不是可能会更好一些？</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//第四步，将二级页表项内容转换为页控制块，返回即可</span></span><br><span class="line">	pp = pa2page(*pte);</span><br><span class="line">	<span class="keyword">if</span> (ppte) &#123;</span><br><span class="line">		*ppte = pte;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> pp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="void-page-remove-Pde-pgdir-u-int-asid-u-long-va"><a href="#void-page-remove-Pde-pgdir-u-int-asid-u-long-va" class="headerlink" title="void page_remove(Pde *pgdir, u_int asid, u_long va)"></a><code>void page_remove(Pde *pgdir, u_int asid, u_long va)</code></h4><p>​		该函数的作用是**<big>移除一个映射：在页表pgdir中直接移除关于asid对应进程的一个映射：<code>va-&gt;anyaddr</code>，并维护对应物理页控制块</big>**。该函数调用了我们先前完成的<code>page_lookup(Pde* pgdir, u_long va, Pte **ppte)</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">page_remove</span><span class="params">(Pde *pgdir, u_int asid, u_long va)</span> &#123;</span><br><span class="line">	Pte *pte;</span><br><span class="line">	<span class="comment">//查询物理页控制块</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">pp</span> =</span> page_lookup(pgdir, va, &amp;pte);</span><br><span class="line">	<span class="keyword">if</span> (pp == <span class="literal">NULL</span>) &#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//先前在物理内存管理中完成的函数，使pp_ref--，若降为0则释放该块</span></span><br><span class="line">	page_decref(pp);</span><br><span class="line">	<span class="comment">//直接置0即表示彻底删除映射</span></span><br><span class="line">	*pte = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//每次修改完页表后一定要更新TLB</span></span><br><span class="line">	tlb_invalidate(asid, va);</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="三、TLB重填"><a href="#三、TLB重填" class="headerlink" title="三、TLB重填"></a>三、TLB重填</h3><p>​		快表(TLB)是页表的高速缓存，其中存储的映射是页表中映射的子集。TLB的速度要比直接读写内存快得多，能够改善虚拟地址到物理地址的转换速度。</p>
+<p>​		指导书中对于TLB的介绍已经比较详细<del>感觉自己总结不出来啥东西</del>，因此只分析一下代码。</p>
+<h4 id="tlb-out-u-long-Key-汇编函数"><a href="#tlb-out-u-long-Key-汇编函数" class="headerlink" title="tlb_out(u_long Key) 汇编函数"></a><code>tlb_out(u_long Key)</code> 汇编函数</h4><p>​		该函数的作用是<strong>根据给出的Key，找到相应的TLB表项并将其清空。</strong>该汇编函数由C函数<code>void tlb_invalidate(u_int asid, u_long va)</code>调用。</p>
+<p>​		<a href="#tlb_out_detail_jump">代码分析已经在思考题中给出</a>。简单来说，就是通过<code>tlbp</code>指令查找传入Key对应的表项，如果找到，则通过<code>tlbwi</code>指令将<code>CP0_ENTRYHI</code>与<code>CP0_ENTRYLO0</code>中预先置好的0值写入对应的表项。</p>
+<h4 id="Pte-do-tlb-refill-u-long-va-u-int-asid"><a href="#Pte-do-tlb-refill-u-long-va-u-int-asid" class="headerlink" title="Pte _do_tlb_refill(u_long va, u_int asid)"></a><code>Pte _do_tlb_refill(u_long va, u_int asid)</code></h4><p>​		该函数的作用是<strong>确保asid对应的进程的虚拟地址va映射到了一个物理地址，否则随机映射之</strong>。函数返回对应二级页表<strong>表项的值</strong>。</p>
+<p>​		其中<code>passive_alloc(u_long va, Pde *pgdir, u_int asid)</code>的作用是在页表pgdir中给虚拟地址va随机分配一个物理页来建立映射。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Pte _do_tlb_refill(u_long va, u_int asid) &#123;</span><br><span class="line">	Pte *pte;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">while</span>(page_lookup(cur_pgdir, va, &amp;pte)==<span class="literal">NULL</span>)&#123;</span><br><span class="line">		passive_alloc(va, cur_pgdir, asid);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">/*此处使用while是一个保险机制。在lab2中上述代码其实等价于：</span></span><br><span class="line"><span class="comment">	if(page_lookup(cur_pgdir, va, &amp;pte)==NULL)&#123;</span></span><br><span class="line"><span class="comment">		passive_alloc(va, cur_pgdir, asid);</span></span><br><span class="line"><span class="comment">		page_lookup(cur_pgdir, va, &amp;pte);</span></span><br><span class="line"><span class="comment">	&#125;</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">	<span class="keyword">return</span> *pte;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="do-tlb-refill汇编函数"><a href="#do-tlb-refill汇编函数" class="headerlink" title="do_tlb_refill汇编函数"></a><code>do_tlb_refill</code>汇编函数</h4><p>​		该函数的作用是完成异常TLB表项的重填过程。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">NESTED(do_tlb_refill, 0, zero)</span><br><span class="line">	//将引发地址异常的虚拟地址va存入a0，作为_do_tlb_refill的第一个参数</span><br><span class="line">	mfc0    a0, CP0_BADVADDR</span><br><span class="line">	//将Key存入a1</span><br><span class="line">	mfc0    a1, CP0_ENTRYHI</span><br><span class="line">	//将Key进保留ASID对应的6位，作为_do_tlb_refill的第二个参数</span><br><span class="line">	srl     a1, a1, 6</span><br><span class="line">	andi    a1, a1, 0b111111</span><br><span class="line">	sw      ra, tlb_refill_ra</span><br><span class="line">	//调用_do_tlb_refill</span><br><span class="line">	jal     _do_tlb_refill</span><br><span class="line">	lw      ra, tlb_refill_ra</span><br><span class="line">	//将_do_tlb_refill返回的二级页表项的值Data放入CP0_ENTRYLO0，准备写入目标TLB表项</span><br><span class="line">	mtc0    v0, CP0_ENTRYLO0</span><br><span class="line">	nop</span><br><span class="line">	//随机写入一个TLB表项（此时CP0_ENTRYHI存储的是Key，CP0_ENTRYLO0存储的是Data</span><br><span class="line">	tlbwr</span><br><span class="line">	jr      ra</span><br><span class="line">END(do_tlb_refill)</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、实验体会"><a href="#三、实验体会" class="headerlink" title="三、实验体会"></a>三、实验体会</h2><p>​		代码量好多，要搞懂的函数好多，要理解的数据结构和算法好多，实验报告写了好久。报告写于lab3开始前，没能和lab3内容联动，理解还不够透彻。</p>
+<p>​		最后标记几个易错点：</p>
+<ul>
+<li>某个u_long变量到底是虚拟地址还是物理地址？从虚拟地址到物理地址又应当如何转换（这与当前是在操作kseg0还是kuseg中的虚拟地址有关，务必分清）？</li>
+<li>链表宏中要求传入的都是结构体的指针，因此务必注意传入的参数是否需要取地址&amp;。</li>
+<li>在涉及物理页面映射与分配的场合，务必更新对应物理页控制块结构体的pp_ref字段。</li>
+<li>在修改二级页表项值的场合，务必使用<code>void tlb_invalidate(u_int asid, u_long va)</code>来触发TLB重填。</li>
+<li>注意指针加法和减法的含义，其加法和减法的单位都是sizeof(TYPE)。这非常基本非常细节，但确实可以简化操作或者导致bug。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">H1kari</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2023/08/20/OSlab-report-2/">http://example.com/2023/08/20/OSlab-report-2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">H1kari's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/img/default_cover_2.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/08/20/OSlab-report-3/" title="BUAA2023春OS课程LAB3实验报告"><img class="cover" src="/img/default_cover_1.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">BUAA2023春OS课程LAB3实验报告</div></div></a></div><div class="next-post pull-right"><a href="/2023/08/20/OSlab-report-1/" title="BUAA2023春OS课程LAB1实验报告"><img class="cover" src="/img/default_cover_4.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">BUAA2023春OS课程LAB1实验报告</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">H1kari</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">亻尔女子, this is my blog.</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Lab2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A"><span class="toc-number">1.</span> <span class="toc-text">Lab2实验报告</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Thinking"><span class="toc-number">1.1.</span> <span class="toc-text">一、Thinking</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Thinking1"><span class="toc-number">1.1.1.</span> <span class="toc-text">Thinking1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Thinking2"><span class="toc-number">1.1.2.</span> <span class="toc-text">Thinking2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Thinking3"><span class="toc-number">1.1.3.</span> <span class="toc-text">Thinking3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Thinking4"><span class="toc-number">1.1.4.</span> <span class="toc-text">Thinking4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Thinking5"><span class="toc-number">1.1.5.</span> <span class="toc-text">Thinking5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Thinking-6"><span class="toc-number">1.1.6.</span> <span class="toc-text">Thinking 6</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Thinking-A-1"><span class="toc-number">1.1.7.</span> <span class="toc-text">Thinking A.1</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%9A%BE%E7%82%B9%E6%80%BB%E7%BB%93"><span class="toc-number">1.2.</span> <span class="toc-text">二、难点总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-number">1.2.1.</span> <span class="toc-text">一、物理内存管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80"><span class="toc-number">1.2.2.</span> <span class="toc-text">1.内存布局</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%93%BE%E8%A1%A8%E6%B3%95%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.链表法原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%AF%BB%E4%BB%A3%E7%A0%81"><span class="toc-number">1.2.4.</span> <span class="toc-text">3.读代码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BE%85%E5%8A%A9%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">辅助函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#void-mips-detect-memory"><span class="toc-number">1.2.4.2.</span> <span class="toc-text">void mips_detect_memory()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#void-alloc-u-int-n-u-int-align-int-clear"><span class="toc-number">1.2.4.3.</span> <span class="toc-text">void *alloc(u_int n, u_int align, int clear)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#void-mips-vm-init"><span class="toc-number">1.2.4.4.</span> <span class="toc-text">void mips_vm_init()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#void-page-init"><span class="toc-number">1.2.4.5.</span> <span class="toc-text">void page_init()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#int-page-alloc-struct-Page-new"><span class="toc-number">1.2.4.6.</span> <span class="toc-text">int page_alloc(struct Page **new) </span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#void-page-decref-struct-Page-pp"><span class="toc-number">1.2.4.7.</span> <span class="toc-text">void page_decref(struct Page *pp)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#void-page-free-struct-Page-pp"><span class="toc-number">1.2.4.8.</span> <span class="toc-text">void page_free(struct Page *pp)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%93%BE%E8%A1%A8%E5%AE%8F"><span class="toc-number">1.2.4.9.</span> <span class="toc-text">链表宏</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-number">1.2.5.</span> <span class="toc-text">二、虚拟内存管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BA%94%E7%A7%8D%E5%9C%B0%E5%9D%80%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.2.6.</span> <span class="toc-text">1.五种地址之间的转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%A1%B5%E5%BC%8F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.7.</span> <span class="toc-text">2.页式内存管理原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%AF%BB%E4%BB%A3%E7%A0%81-1"><span class="toc-number">1.2.8.</span> <span class="toc-text">3.读代码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#static-int-pgdir-walk-Pde-pgdir-u-long-va-int-create-Pte-ppte"><span class="toc-number">1.2.8.1.</span> <span class="toc-text">static int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#int-page-insert-Pde-pgdir-u-int-asid-struct-Page-pp-u-long-va-u-int-perm"><span class="toc-number">1.2.8.2.</span> <span class="toc-text">int page_insert(Pde *pgdir, u_int asid, struct Page *pp, u_long va, u_int perm)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#struct-Page-page-lookup-Pde-pgdir-u-long-va-Pte-ppte"><span class="toc-number">1.2.8.3.</span> <span class="toc-text">struct Page *page_lookup(Pde *pgdir, u_long va, Pte **ppte)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#void-page-remove-Pde-pgdir-u-int-asid-u-long-va"><span class="toc-number">1.2.8.4.</span> <span class="toc-text">void page_remove(Pde *pgdir, u_int asid, u_long va)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81TLB%E9%87%8D%E5%A1%AB"><span class="toc-number">1.2.9.</span> <span class="toc-text">三、TLB重填</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#tlb-out-u-long-Key-%E6%B1%87%E7%BC%96%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.9.1.</span> <span class="toc-text">tlb_out(u_long Key) 汇编函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pte-do-tlb-refill-u-long-va-u-int-asid"><span class="toc-number">1.2.9.2.</span> <span class="toc-text">Pte _do_tlb_refill(u_long va, u_int asid)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#do-tlb-refill%E6%B1%87%E7%BC%96%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.9.3.</span> <span class="toc-text">do_tlb_refill汇编函数</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E9%AA%8C%E4%BD%93%E4%BC%9A"><span class="toc-number">1.3.</span> <span class="toc-text">三、实验体会</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/08/20/pic-1/" title="网络趣味图片1"><img src="/img/default_cover_4.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="网络趣味图片1"/></a><div class="content"><a class="title" href="/2023/08/20/pic-1/" title="网络趣味图片1">网络趣味图片1</a><time datetime="2023-08-19T16:47:45.984Z" title="发表于 2023-08-20 00:47:45">2023-08-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/08/20/OSlab-report-3/" title="BUAA2023春OS课程LAB3实验报告"><img src="/img/default_cover_1.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="BUAA2023春OS课程LAB3实验报告"/></a><div class="content"><a class="title" href="/2023/08/20/OSlab-report-3/" title="BUAA2023春OS课程LAB3实验报告">BUAA2023春OS课程LAB3实验报告</a><time datetime="2023-08-19T16:45:27.371Z" title="发表于 2023-08-20 00:45:27">2023-08-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/08/20/OSlab-report-2/" title="BUAA2023春OS课程LAB2实验报告"><img src="/img/default_cover_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="BUAA2023春OS课程LAB2实验报告"/></a><div class="content"><a class="title" href="/2023/08/20/OSlab-report-2/" title="BUAA2023春OS课程LAB2实验报告">BUAA2023春OS课程LAB2实验报告</a><time datetime="2023-08-19T16:45:27.367Z" title="发表于 2023-08-20 00:45:27">2023-08-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/08/20/OSlab-report-1/" title="BUAA2023春OS课程LAB1实验报告"><img src="/img/default_cover_4.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="BUAA2023春OS课程LAB1实验报告"/></a><div class="content"><a class="title" href="/2023/08/20/OSlab-report-1/" title="BUAA2023春OS课程LAB1实验报告">BUAA2023春OS课程LAB1实验报告</a><time datetime="2023-08-19T16:45:27.364Z" title="发表于 2023-08-20 00:45:27">2023-08-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/08/20/OSlab-report-4/" title="BUAA2023春OS课程LAB4实验报告"><img src="/img/default_cover_3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="BUAA2023春OS课程LAB4实验报告"/></a><div class="content"><a class="title" href="/2023/08/20/OSlab-report-4/" title="BUAA2023春OS课程LAB4实验报告">BUAA2023春OS课程LAB4实验报告</a><time datetime="2023-08-19T16:45:27.347Z" title="发表于 2023-08-20 00:45:27">2023-08-20</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By H1kari</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
